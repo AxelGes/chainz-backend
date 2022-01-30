@@ -11,7 +11,7 @@ POST http://localhost:8080/player/
 }
 
 # Update
-PUT http://localhost:8080/player/12312345/skywars
+PUT http://localhost:8080/player/1234/skywars
 
 {
     "games_played": 1,
