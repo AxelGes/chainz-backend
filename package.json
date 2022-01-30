@@ -1,9 +1,10 @@
 {
-  "name": "testorm",
+  "name": "chainz-backend",
   "version": "0.0.1",
   "description": "",
   "author": "",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "build": "rimraf dist && tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\"",

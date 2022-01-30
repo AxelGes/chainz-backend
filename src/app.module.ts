@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
+import { PlayerModule } from './player/player.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/User';
-import { Photo } from './entities/Photo';
+import { Player } from './entities/Player';
+import { Skywars } from './entities/Skywars';
+import { SkywarsModule } from './skywars/skywars.module';
 
 @Module({
 	imports: [
@@ -13,14 +14,14 @@ import { Photo } from './entities/Photo';
 				"type": "mysql",
 				"host": "localhost",
 				"port": 3306,
-				"username": "dba",
-				"password": "mysqladmin",
-				"database": "testorm",
+				"username": "root",
+				"password": "",
+				"database": "test",
 				"synchronize": true,
-				"entities": [User, Photo]
+				"entities": [Player, Skywars]
 			}
 		),
-		UsersModule
+		PlayerModule, SkywarsModule
 	],
 	controllers: [AppController],
 	providers: [AppService],
