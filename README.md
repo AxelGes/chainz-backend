@@ -1,35 +1,22 @@
-# testnestjs
-Basic CRUD using NestJS TypeORM MySQL
+# Chainz Backend
+Chainz backend using NestJS TypeORM MySQL
 
 # Insert
-POST http://localhost:3000/users
+POST http://localhost:8080/player/
 
 {
-	"name": "Usuário 1",
-	"photos": 
-	[
-		{ "url": "foto4.jpg" },
-		{ "url": "foto5.jpg" },
-		{ "url": "foto6.jpg" }
-	]
+    "uuid": 1234,
+    "username": "eugenio",
+    "wallet": "0x123123"
 }
 
 # Update
+PUT http://localhost:8080/player/12312345/skywars
 
-PUT http://localhost:3000/users/1   ( 1 == user.id )
-  
 {
-	"name": "Novo Nome"
+    "games_played": 1,
+    "games_won": 0,
+    "kills": 0,
+    "deaths": 1,
+    "coins": 50
 }
-
-# Get all records
-
- GET http://localhost:3000/users
- 
- # Get specific record by Id
- 
- http://localhost:3000/users/1  ( 1 == user.id )
- 
-# Delete specific record by Id
-
-Delete http://localhost:3000/users/1  ( 1 == user.id )
