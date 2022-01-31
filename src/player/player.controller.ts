@@ -8,9 +8,7 @@ import {
   Delete
 } from '@nestjs/common';
 import { Player } from '../entities/Player';
-import { PlayerService } from './shared/player.service';
-import { SkywarsService } from '../skywars/shared/skywars.service';
-import { UpdateResult, DeleteResult } from 'typeorm';
+import { UpdateResult, DeleteResult, InsertResult } from 'typeorm';
 import { Skywars } from '../entities/Skywars';
 
 interface SkywarsUpdateData extends Skywars {
@@ -18,24 +16,20 @@ interface SkywarsUpdateData extends Skywars {
 }
 
 @Controller('player')
-export class PlayerController {
-  constructor(
-    private playerService: PlayerService,
-    private skywarsService: SkywarsService
-  ) {}
+export class PlayerController { 
 
   @Get()
   async getAll(): Promise<Player[]> {
-    return this.playerService.getAll();
+    return Player.find();
   }
 
   @Get(':id')
   async getById(@Param('id') id: number): Promise<Player> {
-    return this.playerService.getById(id);
+    return Player.findOne(id);
   }
 
   @Post()
-  async insert(@Body() player: Player): Promise<Player> {
+  async insert(@Body() player: Player): Promise<InsertResult> {
     player.skywars = Skywars.create({
       games_played: 0,
       games_won: 0,
@@ -43,7 +37,8 @@ export class PlayerController {
       deaths: 0
     });
 
-    return this.playerService.insert(player);
+    await Skywars.insert(player.skywars)
+    return Player.insert(player);
   }
 
   @Put(':id')
@@ -51,12 +46,12 @@ export class PlayerController {
     @Param('id') id: number,
     @Body() player: Player
   ): Promise<UpdateResult> {
-    return this.playerService.update(id, player);
+    return Player.update(id, player);
   }
 
   @Delete(':id')
   async delete(@Param('id') id: number): Promise<DeleteResult> {
-    return this.playerService.delete(id);
+    return Player.delete(id);
   }
 
   @Put(':uuid/skywars')
@@ -89,7 +84,17 @@ export class PlayerController {
       player.coins += skywarsData.coins;
     }
 
-    await this.skywarsService.update(player.skywars.id, player.skywars);
-    return this.playerService.update(player.id, player);
+    await Skywars.update(player.skywars.id, player.skywars);
+    return Player.update(player.id, player);
+  }
+
+  @Get(':uuid/stats')
+  async getPlayerStats(
+    @Param('uuid') uuid: number
+  ): Promise<Player> {
+    return Player.findOne({
+      where: { uuid },
+      relations: ['skywars']
+    });
   }
 }
