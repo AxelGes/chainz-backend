@@ -5,23 +5,23 @@ import { PlayerModule } from './player/player.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Player } from './entities/Player';
 import { Skywars } from './entities/Skywars';
-import { SkywarsModule } from './skywars/skywars.module';
+import { Thebridge } from './entities/Thebridge';
 
 @Module({
 	imports: [
 		TypeOrmModule.forRoot(
 			{
-				"type": "mysql",
+				"type": "postgres",
 				"host": "localhost",
-				"port": 3306,
-				"username": "root",
-				"password": "",
-				"database": "test",
+				"port": 5432,
+				"username": "postgres",
+				"password": "postgres",
+				"database": "chainz2",
 				"synchronize": true,
-				"entities": [Player, Skywars]
+				"entities": [Player, Skywars, Thebridge]
 			}
 		),
-		PlayerModule, SkywarsModule
+		PlayerModule
 	],
 	controllers: [AppController],
 	providers: [AppService],

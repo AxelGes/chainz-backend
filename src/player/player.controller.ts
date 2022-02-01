@@ -10,8 +10,13 @@ import {
 import { Player } from '../entities/Player';
 import { UpdateResult, DeleteResult, InsertResult } from 'typeorm';
 import { Skywars } from '../entities/Skywars';
+import { Thebridge } from 'src/entities/Thebridge';
 
 interface SkywarsUpdateData extends Skywars {
+  coins: number;
+}
+
+interface ThebridgeUpdateData extends Thebridge {
   coins: number;
 }
 
@@ -23,78 +28,101 @@ export class PlayerController {
     return Player.find();
   }
 
-  @Get(':id')
-  async getById(@Param('id') id: number): Promise<Player> {
-    return Player.findOne(id);
+  @Get(':uuid')
+  async getByUuid(@Param('uuid') uuid: number): Promise<Player> {
+    return Player.findOne({where: {uuid}});
   }
 
   @Post()
   async insert(@Body() player: Player): Promise<InsertResult> {
-    player.skywars = Skywars.create({
-      games_played: 0,
-      games_won: 0,
-      kills: 0,
-      deaths: 0
-    });
-
-    await Skywars.insert(player.skywars)
     return Player.insert(player);
-  }
-
-  @Put(':id')
-  async update(
-    @Param('id') id: number,
-    @Body() player: Player
-  ): Promise<UpdateResult> {
-    return Player.update(id, player);
-  }
-
-  @Delete(':id')
-  async delete(@Param('id') id: number): Promise<DeleteResult> {
-    return Player.delete(id);
   }
 
   @Put(':uuid/skywars')
   async updateSkywars(
-    @Param('uuid') uuid: number,
+    @Param('uuid') uuid: string,
     @Body() skywarsData: SkywarsUpdateData
-  ): Promise<UpdateResult> {
+  ): Promise<Player> {
     const player = await Player.findOne({
       where: { uuid },
       relations: ['skywars']
     });
 
-    if (skywarsData.games_played) {
-      player.skywars.games_played += skywarsData.games_played;
-    }
-
-    if (skywarsData.games_won) {
-      player.skywars.games_won += skywarsData.games_won;
-    }
-
-    if (skywarsData.kills) {
-      player.skywars.kills += skywarsData.kills;
-    }
-
-    if (skywarsData.deaths) {
-      player.skywars.deaths += skywarsData.deaths;
+    if(!player.skywars){
+      player.skywars = Skywars.create(skywarsData);
+    } else{
+      if (skywarsData.gamesPlayed) {
+        player.skywars.gamesPlayed += skywarsData.gamesPlayed;
+      }
+  
+      if (skywarsData.gamesWon) {
+        player.skywars.gamesWon += skywarsData.gamesWon;
+      }
+  
+      if (skywarsData.kills) {
+        player.skywars.kills += skywarsData.kills;
+      }
+  
+      if (skywarsData.deaths) {
+        player.skywars.deaths += skywarsData.deaths;
+      }
     }
 
     if (skywarsData.coins) {
       player.coins += skywarsData.coins;
     }
 
-    await Skywars.update(player.skywars.id, player.skywars);
-    return Player.update(player.id, player);
+    return Player.save(player);
   }
 
+  @Put(':uuid/thebridge')
+  async updateThebridge(
+    @Param('uuid') uuid: string,
+    @Body() thebridgeData: ThebridgeUpdateData
+  ): Promise<Player> {
+    const player = await Player.findOne({
+      where: { uuid },
+      relations: ['thebridge']
+    });
+
+    if(!player.thebridge){
+      player.thebridge = Thebridge.create(thebridgeData);
+    } else{
+      if (thebridgeData.gamesPlayed) {
+        player.thebridge.gamesPlayed += thebridgeData.gamesPlayed;
+      }
+  
+      if (thebridgeData.gamesWon) {
+        player.thebridge.gamesWon += thebridgeData.gamesWon;
+      }
+  
+      if (thebridgeData.kills) {
+        player.thebridge.kills += thebridgeData.kills;
+      }
+  
+      if (thebridgeData.deaths) {
+        player.thebridge.deaths += thebridgeData.deaths;
+      }
+  
+      if (thebridgeData.scoredPoints) {
+        player.thebridge.scoredPoints += thebridgeData.scoredPoints;
+      }
+    }
+    
+    if (thebridgeData.coins) {
+      player.coins += thebridgeData.coins;
+    }
+
+    return Player.save(player);
+  }
+  
   @Get(':uuid/stats')
   async getPlayerStats(
-    @Param('uuid') uuid: number
+    @Param('uuid') uuid: string
   ): Promise<Player> {
     return Player.findOne({
       where: { uuid },
-      relations: ['skywars']
+      relations: ['skywars', 'thebridge']
     });
   }
 }

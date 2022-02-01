@@ -9,6 +9,7 @@ import {
   JoinColumn
 } from 'typeorm';
 import { Skywars } from './Skywars';
+import { Thebridge } from './Thebridge';
 @Entity()
 export class Player extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -20,22 +21,26 @@ export class Player extends BaseEntity {
   @Column()
   username: string;
 
-  @Column({ nullable: false, unique: true })
+  @Column({ nullable: true, unique: true })
   wallet: string;
 
   @Column({ default: 0 })
   coins: number;
 
-  @Column({ nullable: false })
-  last_connection: Date;
+  @Column({ name: "last_connection", nullable: true })
+  lastConnection: Date;
 
   @OneToOne(() => Skywars, skywars => skywars.player, { cascade: true })
   @JoinColumn()
   skywars: Skywars;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @OneToOne(() => Thebridge, thebridge => thebridge.player, { cascade: true })
+  @JoinColumn()
+  thebridge: Thebridge;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @CreateDateColumn({name: "created_at"})
+  createdAt: Date;
+
+  @UpdateDateColumn({name: "updated_at"})
+  updatedAt: Date;
 }

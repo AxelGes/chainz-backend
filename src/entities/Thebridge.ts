@@ -10,7 +10,7 @@ import {
 import { Player } from './Player';
 
 @Entity()
-export class Skywars extends BaseEntity {
+export class Thebridge extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -26,7 +26,10 @@ export class Skywars extends BaseEntity {
   @Column({default: 0})
   deaths: number;
 
-  @OneToOne(() => Player, player => player.skywars, {
+  @Column({name: "scored_points", default: 0})
+  scoredPoints: number;
+
+  @OneToOne(() => Player, player => player.thebridge, {
     nullable: false
   })
   player: Player;
