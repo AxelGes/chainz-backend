@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Player } from './entities/Player';
 import { Skywars } from './entities/Skywars';
 import { Thebridge } from './entities/Thebridge';
+import { SkywarsModule } from './skywars/skywars.module';
+import { ThebridgeModule } from './thebridge/thebridge.module';
 
 @Module({
 	imports: [
@@ -21,7 +23,7 @@ import { Thebridge } from './entities/Thebridge';
 				"entities": [Player, Skywars, Thebridge]
 			}
 		),
-		PlayerModule
+		PlayerModule, SkywarsModule, ThebridgeModule
 	],
 	controllers: [AppController],
 	providers: [AppService],
