@@ -10,29 +10,42 @@ import {
 } from '@nestjs/common';
 import { Skywars } from '../entities/Skywars';
 
-@Controller('skywars')
-export class SkywarsController { 
+interface SkywarsRowsAndCountAll {
+  rows: Skywars[];
+  pages: number;
+}
 
-  @Get()
-  async getAll(): Promise<Skywars[]> {
-    return Skywars.find();
-  }
+@Controller('skywars')
+export class SkywarsController {
 
   @Get('/top')
   async getSkywarsTop(
     @Query('limit') limit: number = 10,
+    @Query('page') page: number = 1,
     @Query('col') col?: string
-  ): Promise<Skywars[]> {
-    switch (col) {
-      case "gamesPlayed":
-        return Skywars.find({relations: ['player'], order: {gamesPlayed: "DESC" as any}, take: limit});
-      case "gamesWon":
-          return Skywars.find({relations: ['player'], order: {gamesWon: "DESC" as any}, take: limit});
-      case "kills":
-            return Skywars.find({relations: ['player'], order: {kills: "DESC" as any}, take: limit});
-      default:
-        return Skywars.find({relations: ['player'], order: {gamesWon: "DESC" as any}, take: limit});
+  ): Promise<SkywarsRowsAndCountAll> {
+    const skip = (page - 1) * limit;
+    const count = await Skywars.count();
+    const pages: number = Math.ceil(count / limit);
+
+    let rows: Skywars[];
+
+    if (col) {
+      if (col == 'gamesPlayed') {
+        rows = await Skywars.find({ relations: ['player'], order: { gamesPlayed: "DESC", id: "ASC" }, take: limit, skip });
       }
 
+      if (col == 'gamesWon') {
+        rows = await Skywars.find({ relations: ['player'], order: { gamesWon: "DESC", id: "ASC" }, take: limit, skip });
+      }
+
+      if (col == 'kills') {
+        rows = await Skywars.find({ relations: ['player'], order: { kills: "DESC", id: "ASC" }, take: limit, skip });
+      }
+    } else {
+      rows = await Skywars.find({ relations: ['player'], order: { gamesWon: "DESC", id: "ASC" }, take: limit, skip });
+    }
+
+    return { rows, pages }
   }
 }

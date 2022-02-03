@@ -21,7 +21,7 @@ interface ThebridgeUpdateData extends Thebridge {
 }
 
 @Controller('player')
-export class PlayerController { 
+export class PlayerController {
 
   @Get()
   async getAll(): Promise<Player[]> {
@@ -30,7 +30,7 @@ export class PlayerController {
 
   @Get(':uuid')
   async getByUuid(@Param('uuid') uuid: number): Promise<Player> {
-    return Player.findOne({where: {uuid}});
+    return Player.findOne({ where: { uuid } });
   }
 
   @Post()
@@ -48,21 +48,21 @@ export class PlayerController {
       relations: ['skywars']
     });
 
-    if(!player.skywars){
+    if (!player.skywars) {
       player.skywars = Skywars.create(skywarsData);
-    } else{
+    } else {
       if (skywarsData.gamesPlayed) {
         player.skywars.gamesPlayed += skywarsData.gamesPlayed;
       }
-  
+
       if (skywarsData.gamesWon) {
         player.skywars.gamesWon += skywarsData.gamesWon;
       }
-  
+
       if (skywarsData.kills) {
         player.skywars.kills += skywarsData.kills;
       }
-  
+
       if (skywarsData.deaths) {
         player.skywars.deaths += skywarsData.deaths;
       }
@@ -85,37 +85,37 @@ export class PlayerController {
       relations: ['thebridge']
     });
 
-    if(!player.thebridge){
+    if (!player.thebridge) {
       player.thebridge = Thebridge.create(thebridgeData);
-    } else{
+    } else {
       if (thebridgeData.gamesPlayed) {
         player.thebridge.gamesPlayed += thebridgeData.gamesPlayed;
       }
-  
+
       if (thebridgeData.gamesWon) {
         player.thebridge.gamesWon += thebridgeData.gamesWon;
       }
-  
+
       if (thebridgeData.kills) {
         player.thebridge.kills += thebridgeData.kills;
       }
-  
+
       if (thebridgeData.deaths) {
         player.thebridge.deaths += thebridgeData.deaths;
       }
-  
+
       if (thebridgeData.scoredPoints) {
         player.thebridge.scoredPoints += thebridgeData.scoredPoints;
       }
     }
-    
+
     if (thebridgeData.coins) {
       player.coins += thebridgeData.coins;
     }
 
     return Player.save(player);
   }
-  
+
   @Get(':uuid/stats')
   async getPlayerStats(
     @Param('uuid') uuid: string
@@ -125,4 +125,5 @@ export class PlayerController {
       relations: ['skywars', 'thebridge']
     });
   }
+
 }
