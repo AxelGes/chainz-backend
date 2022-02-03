@@ -12,7 +12,7 @@ import { Thebridge } from '../entities/Thebridge';
 
 interface ThebridgeRowsAndCountAll {
   rows: Thebridge[];
-  pages: number;
+  pageCount: number;
 }
 
 @Controller('thebridge')
@@ -26,7 +26,7 @@ export class ThebridgeController {
   ): Promise<ThebridgeRowsAndCountAll> {
     const skip = (page - 1) * limit;
     const count = await Thebridge.count();
-    const pages: number = Math.ceil(count / limit);
+    const pageCount: number = Math.ceil(count / limit);
 
     let rows: Thebridge[];
 
@@ -46,6 +46,6 @@ export class ThebridgeController {
       rows = await Thebridge.find({ relations: ['player'], order: { gamesWon: "DESC", id: "ASC" }, take: limit, skip });
     }
 
-    return { rows, pages }
+    return { rows, pageCount }
   }
 }

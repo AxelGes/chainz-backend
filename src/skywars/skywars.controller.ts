@@ -12,7 +12,7 @@ import { Skywars } from '../entities/Skywars';
 
 interface SkywarsRowsAndCountAll {
   rows: Skywars[];
-  pages: number;
+  pageCount: number;
 }
 
 @Controller('skywars')
@@ -26,7 +26,7 @@ export class SkywarsController {
   ): Promise<SkywarsRowsAndCountAll> {
     const skip = (page - 1) * limit;
     const count = await Skywars.count();
-    const pages: number = Math.ceil(count / limit);
+    const pageCount: number = Math.ceil(count / limit);
 
     let rows: Skywars[];
 
@@ -46,6 +46,6 @@ export class SkywarsController {
       rows = await Skywars.find({ relations: ['player'], order: { gamesWon: "DESC", id: "ASC" }, take: limit, skip });
     }
 
-    return { rows, pages }
+    return { rows, pageCount }
   }
 }
