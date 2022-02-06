@@ -5,7 +5,8 @@ import {
   Body,
   Post,
   Put,
-  Delete
+  Delete,
+  Query
 } from '@nestjs/common';
 import { Player } from '../entities/Player';
 import { UpdateResult, DeleteResult, InsertResult } from 'typeorm';
@@ -29,8 +30,20 @@ export class PlayerController {
   }
 
   @Get(':uuid')
-  async getByUuid(@Param('uuid') uuid: number): Promise<Player> {
-    return Player.findOne({ where: { uuid } });
+  async getByUuid(@Param('uuid') uuid: string, @Query('username') username: string): Promise<Player> {
+    const player = await Player.findOne({
+      where: { uuid }, relations: ['skywars', 'thebridge']
+    });
+
+    if (!player || player.username !== username) {
+      await Player.save({ id: player.id, uuid, username } as Player);
+    } else {
+      return player;
+    }
+
+    return Player.findOne({
+      where: { uuid }, relations: ['skywars', 'thebridge']
+    });
   }
 
   @Post()
