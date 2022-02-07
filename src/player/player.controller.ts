@@ -35,20 +35,18 @@ export class PlayerController {
       where: { uuid }, relations: ['skywars', 'thebridge']
     });
 
-    if (!player || player.username !== username) {
-      await Player.save({ id: player.id, uuid, username } as Player);
-    } else {
+    if (!player) {
+      await Player.insert({ uuid, username } as Player);
+    } else if (player.username !== username) {
+      await Player.update({ id: player.id }, { username });
+    }
+    else {
       return player;
     }
 
     return Player.findOne({
       where: { uuid }, relations: ['skywars', 'thebridge']
     });
-  }
-
-  @Post()
-  async insert(@Body() player: Player): Promise<InsertResult> {
-    return Player.insert(player);
   }
 
   @Put(':uuid/skywars')
@@ -137,6 +135,11 @@ export class PlayerController {
       where: { uuid },
       relations: ['skywars', 'thebridge']
     });
+  }
+
+  @Get(':uuid/verify')
+  verify(@Param('uuid') uuid: string): string {
+    return uuid;
   }
 
 }
