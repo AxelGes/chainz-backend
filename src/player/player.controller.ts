@@ -9,9 +9,10 @@ import {
   Query
 } from '@nestjs/common';
 import { Player } from '../entities/Player';
-import { UpdateResult, DeleteResult, InsertResult } from 'typeorm';
 import { Skywars } from '../entities/Skywars';
 import { Thebridge } from 'src/entities/Thebridge';
+import * as Jwt from 'njwt';
+import { UpdateResult } from 'typeorm';
 
 interface SkywarsUpdateData extends Skywars {
   coins: number;
@@ -137,9 +138,25 @@ export class PlayerController {
     });
   }
 
-  @Get(':uuid/verify')
-  verify(@Param('uuid') uuid: string): string {
-    return uuid;
+  @Get(':uuid/generate-token')
+  generateToken(@Param('uuid') uuid: string): string {
+    const payload = { sub: uuid, iss: 'chainz' }
+    const token = Jwt.create(payload, 'test');
+    return token.compact();
+  }
+
+  @Post('/verify-token')
+  async verifyToken(@Body() body: { token: string, signer: string }): Promise<UpdateResult> {
+    let verifiedJwt;
+    try {
+      verifiedJwt = Jwt.verify(body.token, 'test');
+    } catch (e) {
+      return e;
+    }
+
+    if (verifiedJwt) {
+      return Player.update({ uuid: verifiedJwt.body.sub }, { wallet: body.signer });
+    }
   }
 
 }
