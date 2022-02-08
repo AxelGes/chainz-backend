@@ -13,6 +13,7 @@ import { Skywars } from '../entities/Skywars';
 import { Thebridge } from 'src/entities/Thebridge';
 import * as Jwt from 'njwt';
 import { UpdateResult } from 'typeorm';
+import { ethers } from 'ethers';
 
 interface SkywarsUpdateData extends Skywars {
   coins: number;
@@ -146,16 +147,24 @@ export class PlayerController {
   }
 
   @Post('/verify-token')
-  async verifyToken(@Body() body: { token: string, signer: string }): Promise<UpdateResult> {
-    let verifiedJwt;
+  async verifyToken(@Body() body: { token: string, signer: string, signature: string }): Promise<UpdateResult> {
     try {
-      verifiedJwt = Jwt.verify(body.token, 'test');
-    } catch (e) {
-      return e;
-    }
+      const verifiedJwt = Jwt.verify(body.token, 'test');
 
-    if (verifiedJwt) {
-      return Player.update({ uuid: verifiedJwt.body.sub }, { wallet: body.signer });
+      if (!verifiedJwt) {
+        return;
+      }
+
+      const signerAddr = ethers.utils.verifyMessage(body.token, body.signature);
+      if (signerAddr !== body.signer) {
+        return;
+      }
+
+      await Player.update({ wallet: signerAddr }, { wallet: null })
+
+      return Player.update({ uuid: (verifiedJwt.body as any).sub }, { wallet: signerAddr });
+    } catch (err) {
+      return err;
     }
   }
 
