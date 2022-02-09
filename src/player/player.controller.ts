@@ -143,7 +143,7 @@ export class PlayerController {
   generateToken(@Param('uuid') uuid: string): string {
     const payload = { sub: uuid, iss: 'chainz' }
     const token = Jwt.create(payload, 'test');
-    return token.compact();
+    return "http:/test.com/" + token.compact();
   }
 
   @Post('/verify-token')
