@@ -1,11 +1,6 @@
 import {
   Controller,
   Get,
-  Param,
-  Body,
-  Post,
-  Put,
-  Delete,
   Query
 } from '@nestjs/common';
 import { Thebridge } from '../entities/Thebridge';
@@ -30,20 +25,22 @@ export class ThebridgeController {
 
     let rows: Thebridge[];
 
-    if (col) {
-      if (col == 'gamesPlayed') {
+    switch (col) {
+      case 'gamesPlayed':
         rows = await Thebridge.find({ relations: ['player'], order: { gamesPlayed: "DESC", id: "ASC" }, take: limit, skip });
-      }
-
-      if (col == 'gamesWon') {
+        break;
+      case 'gamesWon':
         rows = await Thebridge.find({ relations: ['player'], order: { gamesWon: "DESC", id: "ASC" }, take: limit, skip });
-      }
-
-      if (col == 'scoredPoints') {
+        break;
+      case 'scoredPoints':
         rows = await Thebridge.find({ relations: ['player'], order: { scoredPoints: "DESC", id: "ASC" }, take: limit, skip });
-      }
-    } else {
-      rows = await Thebridge.find({ relations: ['player'], order: { gamesWon: "DESC", id: "ASC" }, take: limit, skip });
+        break;
+      case 'kills':
+        rows = await Thebridge.find({ relations: ['player'], order: { kills: "DESC", id: "ASC" }, take: limit, skip });
+        break;
+      default:
+        rows = await Thebridge.find({ relations: ['player'], order: { gamesWon: "DESC", id: "ASC" }, take: limit, skip });
+        break;
     }
 
     return { rows, pageCount }

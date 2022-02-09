@@ -1,11 +1,6 @@
 import {
   Controller,
   Get,
-  Param,
-  Body,
-  Post,
-  Put,
-  Delete,
   Query
 } from '@nestjs/common';
 import { Skywars } from '../entities/Skywars';
@@ -30,20 +25,19 @@ export class SkywarsController {
 
     let rows: Skywars[];
 
-    if (col) {
-      if (col == 'gamesPlayed') {
+    switch (col) {
+      case 'gamesPlayed':
         rows = await Skywars.find({ relations: ['player'], order: { gamesPlayed: "DESC", id: "ASC" }, take: limit, skip });
-      }
-
-      if (col == 'gamesWon') {
+        break;
+      case 'gamesWon':
         rows = await Skywars.find({ relations: ['player'], order: { gamesWon: "DESC", id: "ASC" }, take: limit, skip });
-      }
-
-      if (col == 'kills') {
+        break;
+      case 'kills':
         rows = await Skywars.find({ relations: ['player'], order: { kills: "DESC", id: "ASC" }, take: limit, skip });
-      }
-    } else {
-      rows = await Skywars.find({ relations: ['player'], order: { gamesWon: "DESC", id: "ASC" }, take: limit, skip });
+        break;
+      default:
+        rows = await Skywars.find({ relations: ['player'], order: { gamesWon: "DESC", id: "ASC" }, take: limit, skip });
+        break;
     }
 
     return { rows, pageCount }
