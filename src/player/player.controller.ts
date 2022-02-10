@@ -140,10 +140,10 @@ export class PlayerController {
   }
 
   @Get(':uuid/generate-token')
-  generateToken(@Param('uuid') uuid: string): string {
+  generateToken(@Param('uuid') uuid: string): { url: string } {
     const payload = { sub: uuid, iss: 'chainz' }
     const token = Jwt.create(payload, 'test');
-    return "http:/test.com/" + token.compact();
+    return { url: "https://chainz-frontend.vercel.app/verify?token=" + token.compact() };
   }
 
   @Post('/verify-token')
