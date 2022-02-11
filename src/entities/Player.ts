@@ -24,8 +24,11 @@ export class Player extends BaseEntity {
   @Column({ nullable: true, unique: true })
   wallet: string;
 
-  @Column({ default: 0 })
+  @Column({ type: 'float', default: 0 })
   coins: number;
+
+  @Column({ type: 'float', default: 0.1 })
+  multiplier: number;
 
   @Column({ name: "last_connection", nullable: true })
   lastConnection: Date;
