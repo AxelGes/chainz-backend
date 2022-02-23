@@ -14,6 +14,9 @@ export class Thebridge extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ unique: true })
+  uuid: string;
+
   @Column({ name: "games_played", default: 0 })
   gamesPlayed: number;
 
@@ -26,12 +29,20 @@ export class Thebridge extends BaseEntity {
   @Column({ default: 0 })
   deaths: number;
 
+  //Column acts as an array
+  @Column({ default: null })
+  trails: string;
+
+  @Column({ default: null, nullable: true })
+  trail: number;
+
   @Column({ name: "scored_points", default: 0 })
   scoredPoints: number;
 
   @OneToOne(() => Player, player => player.thebridge, {
     nullable: false
   })
+
   player: Player;
 
   @CreateDateColumn({ name: "created_at" })

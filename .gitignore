@@ -4,6 +4,9 @@
 package-lock.json
 yarn.lock
 
+# env
+.env
+
 # Logs
 logs
 *.log
