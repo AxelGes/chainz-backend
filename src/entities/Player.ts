@@ -34,11 +34,9 @@ export class Player extends BaseEntity {
   lastConnection: Date;
 
   @OneToOne(() => Skywars, skywars => skywars.player, { cascade: true })
-  @JoinColumn()
   skywars: Skywars;
 
   @OneToOne(() => Thebridge, thebridge => thebridge.player, { cascade: true })
-  @JoinColumn()
   thebridge: Thebridge;
 
   @CreateDateColumn({ name: "created_at" })

@@ -5,7 +5,8 @@ import {
   OneToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  BaseEntity
+  BaseEntity,
+  JoinColumn
 } from 'typeorm';
 import { Player } from './Player';
 
@@ -29,6 +30,7 @@ export class Skywars extends BaseEntity {
   @OneToOne(() => Player, player => player.skywars, {
     nullable: false
   })
+  @JoinColumn({ name: "player_id" })
   player: Player;
 
   @CreateDateColumn({ name: "created_at" })

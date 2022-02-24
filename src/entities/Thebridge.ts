@@ -5,7 +5,8 @@ import {
   OneToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  BaseEntity
+  BaseEntity,
+  JoinColumn
 } from 'typeorm';
 import { Player } from './Player';
 
@@ -42,7 +43,7 @@ export class Thebridge extends BaseEntity {
   @OneToOne(() => Player, player => player.thebridge, {
     nullable: false
   })
-
+  @JoinColumn({ name: "player_id" })
   player: Player;
 
   @CreateDateColumn({ name: "created_at" })
