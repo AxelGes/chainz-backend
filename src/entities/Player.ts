@@ -30,6 +30,12 @@ export class Player extends BaseEntity {
   @Column({ type: 'float', default: 0.1 })
   multiplier: number;
 
+  @Column({ default: 1 })
+  level: number;
+
+  @Column({ type: 'float', default: 0 })
+  exp: number;
+
   @Column({ name: "last_connection", nullable: true })
   lastConnection: Date;
 
