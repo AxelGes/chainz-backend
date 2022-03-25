@@ -5,8 +5,8 @@ import {
   Body,
   Post,
   Put,
-  Delete,
-  Query
+  Query,
+  NotFoundException
 } from '@nestjs/common';
 import { Player } from '../entities/Player';
 import { Skywars } from '../entities/Skywars';
@@ -25,12 +25,6 @@ interface ThebridgeUpdateData extends Thebridge {
 
 @Controller('player')
 export class PlayerController {
-
-  @Get()
-  async getAll(): Promise<Player[]> {
-    return Player.find();
-  }
-
   @Get(':uuid')
   async getByUuid(@Param('uuid') uuid: string, @Query('username') username: string): Promise<Player> {
     const player = await Player.findOne({
@@ -137,6 +131,21 @@ export class PlayerController {
       where: { uuid },
       relations: ['skywars', 'thebridge']
     });
+  }
+
+  @Get()
+  async getPlayerByWallet(
+    @Query('wallet') wallet: string
+  ): Promise<Player> {
+    const player =  await Player.findOne({
+      where: { wallet }
+    });
+
+    if(!player){
+      throw new NotFoundException();
+    }
+    
+    return player;
   }
 
   @Get(':uuid/generate-token')
