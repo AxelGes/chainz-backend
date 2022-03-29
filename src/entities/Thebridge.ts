@@ -4,13 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  BaseEntity,
-  JoinColumn,
-  OneToOne
+  BaseEntity
 } from 'typeorm';
-import { PlayerProfile } from './PlayerProfile';
 
-@Entity()
+@Entity({ name: 'Thebridge' })
 export class Thebridge extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
