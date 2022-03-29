@@ -1,8 +1,5 @@
-import {
-  Controller,
-  Get,
-  Query
-} from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
+import { getManager } from 'typeorm';
 import { Thebridge } from '../entities/Thebridge';
 
 interface ThebridgeRowsAndCountAll {
@@ -11,38 +8,27 @@ interface ThebridgeRowsAndCountAll {
 }
 
 @Controller('thebridge')
-export class ThebridgeController {
-
+export class SkywarsController {
   @Get('/top')
   async getThebridgeTop(
     @Query('limit') limit: number = 10,
     @Query('page') page: number = 1,
-    @Query('col') col?: string
+    @Query('col') col: string = 'games_won'
   ): Promise<ThebridgeRowsAndCountAll> {
-    const skip = (page - 1) * limit;
+    const skip = (page - 1) * limit != 0 ? (page - 1) * limit : '';
     const count = await Thebridge.count();
     const pageCount: number = Math.ceil(count / limit);
 
-    let rows: Thebridge[];
+    const entityManager = getManager();
+    const rows = await entityManager.query(`
+    SELECT * FROM 
+    thebridge 
+    INNER JOIN 
+    player_profile ON thebridge.uuid = player_profile.uuid
+    ORDER BY ${col} 
+    DESC LIMIT ${limit} ${skip};
+    `);
 
-    switch (col) {
-      case 'gamesPlayed':
-        rows = await Thebridge.find({ relations: ['player'], order: { gamesPlayed: "DESC", id: "ASC" }, take: limit, skip });
-        break;
-      case 'gamesWon':
-        rows = await Thebridge.find({ relations: ['player'], order: { gamesWon: "DESC", id: "ASC" }, take: limit, skip });
-        break;
-      case 'scoredPoints':
-        rows = await Thebridge.find({ relations: ['player'], order: { scoredPoints: "DESC", id: "ASC" }, take: limit, skip });
-        break;
-      case 'kills':
-        rows = await Thebridge.find({ relations: ['player'], order: { kills: "DESC", id: "ASC" }, take: limit, skip });
-        break;
-      default:
-        rows = await Thebridge.find({ relations: ['player'], order: { gamesWon: "DESC", id: "ASC" }, take: limit, skip });
-        break;
-    }
-
-    return { rows, pageCount }
+    return { rows, pageCount };
   }
 }
