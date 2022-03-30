@@ -8,14 +8,14 @@ interface ThebridgeRowsAndCountAll {
 }
 
 @Controller('thebridge')
-export class SkywarsController {
+export class ThebridgeController {
   @Get('/top')
   async getThebridgeTop(
     @Query('limit') limit: number = 10,
     @Query('page') page: number = 1,
     @Query('col') col: string = 'games_won'
   ): Promise<ThebridgeRowsAndCountAll> {
-    const skip = (page - 1) * limit != 0 ? (page - 1) * limit : '';
+    const skip = (page - 1) * limit;
     const count = await Thebridge.count();
     const pageCount: number = Math.ceil(count / limit);
 
@@ -25,8 +25,8 @@ export class SkywarsController {
     thebridge 
     INNER JOIN 
     player_profile ON thebridge.uuid = player_profile.uuid
-    ORDER BY ${col} 
-    DESC LIMIT ${limit} ${skip};
+    ORDER BY ${col} DESC
+    LIMIT ${limit} OFFSET ${skip};
     `);
 
     return { rows, pageCount };

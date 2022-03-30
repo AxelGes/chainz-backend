@@ -7,7 +7,7 @@ import {
   BaseEntity
 } from 'typeorm';
 
-@Entity({ name: 'Thebridge' })
+@Entity()
 export class Thebridge extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;

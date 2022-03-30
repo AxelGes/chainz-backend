@@ -1,5 +1,4 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
 import { Skywars } from '../entities/Skywars';
 import { getManager } from 'typeorm';
 
@@ -16,7 +15,7 @@ export class SkywarsController {
     @Query('page') page: number = 1,
     @Query('col') col: string = 'games_won'
   ): Promise<SkywarsRowsAndCountAll> {
-    const skip = (page - 1) * limit != 0 ? (page - 1) * limit : '';
+    const skip = (page - 1) * limit;
     const count = await Skywars.count();
     const pageCount: number = Math.ceil(count / limit);
 
@@ -26,8 +25,8 @@ export class SkywarsController {
     skywars 
     INNER JOIN 
     player_profile ON skywars.uuid = player_profile.uuid
-    ORDER BY ${col} 
-    DESC LIMIT ${limit} ${skip};
+    ORDER BY ${col} DESC
+    LIMIT ${limit} OFFSET ${skip};
     `);
 
     return { rows, pageCount };
