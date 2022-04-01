@@ -11,22 +11,59 @@ import {
 import { PlayerWallet } from '../entities/PlayerWallet';
 import * as Jwt from 'njwt';
 import { ethers } from 'ethers';
+import { getManager } from 'typeorm';
 @Controller('player')
 export class PlayerController {
   @Get()
   async getPlayerByWallet(
     @Query('wallet') wallet: string
   ): Promise<PlayerWallet> {
-    const player = await PlayerWallet.findOne({
-      where: { wallet }
-    });
+    wallet = "'" + wallet + "'";
 
-    if (!player) {
+    const entityManager = getManager();
+
+    const player = await entityManager.query(`
+    SELECT * FROM  
+    player_wallet 
+    INNER JOIN 
+    player_profile ON player_wallet.uuid = player_profile.uuid
+    WHERE player_wallet.wallet = ${wallet} 
+    LIMIT 1;
+    `);
+
+    if (!player[0]) {
       throw new NotFoundException();
     }
 
-    return player;
+    return player[0];
   }
+
+  //TODO: Hacer que agrupe las stats en objects adentro del player xd
+  /*@Get('/:uuid')
+  async getPlayerStatsByUUID(
+    @Param('uuid') uuid: string
+  ): Promise<PlayerWallet> {
+    uuid = "'" + uuid + "'";
+
+    const entityManager = getManager();
+
+    const player = await entityManager.query(`
+    SELECT player.id, player.uuid, * FROM  
+    player_profile 
+    LEFT JOIN 
+    skywars ON player_profile.uuid = skywars.uuid
+    LEFT JOIN 
+    thebridge ON player_profile.uuid = thebridge.uuid
+    WHERE player_profile.uuid = ${uuid} 
+    LIMIT 1;
+    `);
+
+    if (!player[0]) {
+      throw new NotFoundException();
+    }
+
+    return player[0];
+  }*/
 
   @Get('/generate-token')
   generateToken(@Query('uuid') uuid: string): { url: string } {
