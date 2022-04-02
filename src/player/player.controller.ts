@@ -1,23 +1,14 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Body,
-  Post,
-  Query,
-  NotFoundException,
-  BadRequestException
-} from '@nestjs/common';
-import { PlayerWallet } from '../entities/PlayerWallet';
-import * as Jwt from 'njwt';
+import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
 import { ethers } from 'ethers';
+import * as Jwt from 'njwt';
 import { getManager } from 'typeorm';
+
+import { PlayerWallet } from '../entities/PlayerWallet';
+
 @Controller('player')
 export class PlayerController {
   @Get()
-  async getPlayerByWallet(
-    @Query('wallet') wallet: string
-  ): Promise<PlayerWallet> {
+  async getPlayerByWallet(@Query('wallet') wallet: string): Promise<PlayerWallet> {
     wallet = "'" + wallet + "'";
 
     const entityManager = getManager();

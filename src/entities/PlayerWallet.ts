@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  BaseEntity
-} from 'typeorm';
+import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export class PlayerWallet extends BaseEntity {
@@ -18,10 +11,10 @@ export class PlayerWallet extends BaseEntity {
   @Column({ unique: true })
   wallet: string;
 
-  @Column({ type: 'float', default: 0 })
+  @Column({ type: 'double', default: 0 })
   coins: number;
 
-  @Column({ type: 'float', default: 0.1 })
+  @Column({ type: 'double', default: 0.1 })
   multiplier: number;
 
   @CreateDateColumn({ name: 'created_at' })
