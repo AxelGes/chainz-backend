@@ -1,6 +1,9 @@
 import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
 import { ethers } from 'ethers';
 import * as Jwt from 'njwt';
+import { PlayerProfile } from 'src/entities/PlayerProfile';
+import { Skywars } from 'src/entities/Skywars';
+import { Thebridge } from 'src/entities/Thebridge';
 import { getManager } from 'typeorm';
 
 import { PlayerWallet } from '../entities/PlayerWallet';
@@ -30,31 +33,29 @@ export class PlayerController {
   }
 
   //TODO: Hacer que agrupe las stats en objects adentro del player xd
-  /*@Get('/:uuid')
-  async getPlayerStatsByUUID(
-    @Param('uuid') uuid: string
-  ): Promise<PlayerWallet> {
-    uuid = "'" + uuid + "'";
+  @Get('/:uuid')
+  async getPlayerStatsByUUID(@Param('uuid') uuid: string) {
+    //uuid = "'" + uuid + "'";
+    const favorites = await PlayerProfile.getRepository()
+      .createQueryBuilder('player_profile')
+      .leftJoinAndMapOne(
+        'player_profile.skywars',
+        Skywars,
+        'skywars',
+        'player_profile.uuid = skywars.uuid',
+        { skywars: 'skywars' }
+      )
+      .leftJoinAndMapOne(
+        'player_profile.thebridge',
+        Thebridge,
+        'thebridge',
+        'player_profile.uuid = skywars.uuid',
+        { thebridge: 'thebridge' }
+      )
+      .where('player_profile.uuid = :uuid', { uuid });
 
-    const entityManager = getManager();
-
-    const player = await entityManager.query(`
-    SELECT player.id, player.uuid, * FROM  
-    player_profile 
-    LEFT JOIN 
-    skywars ON player_profile.uuid = skywars.uuid
-    LEFT JOIN 
-    thebridge ON player_profile.uuid = thebridge.uuid
-    WHERE player_profile.uuid = ${uuid} 
-    LIMIT 1;
-    `);
-
-    if (!player[0]) {
-      throw new NotFoundException();
-    }
-
-    return player[0];
-  }*/
+    return favorites.getOne();
+  }
 
   @Get('/generate-token')
   generateToken(@Query('uuid') uuid: string): { url: string } {
