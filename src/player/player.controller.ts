@@ -32,31 +32,6 @@ export class PlayerController {
     return player[0];
   }
 
-  //TODO: Hacer que agrupe las stats en objects adentro del player xd
-  @Get('/:uuid')
-  async getPlayerStatsByUUID(@Param('uuid') uuid: string) {
-    //uuid = "'" + uuid + "'";
-    const favorites = await PlayerProfile.getRepository()
-      .createQueryBuilder('player_profile')
-      .leftJoinAndMapOne(
-        'player_profile.skywars',
-        Skywars,
-        'skywars',
-        'player_profile.uuid = skywars.uuid',
-        { skywars: 'skywars' }
-      )
-      .leftJoinAndMapOne(
-        'player_profile.thebridge',
-        Thebridge,
-        'thebridge',
-        'player_profile.uuid = skywars.uuid',
-        { thebridge: 'thebridge' }
-      )
-      .where('player_profile.uuid = :uuid', { uuid });
-
-    return favorites.getOne();
-  }
-
   @Get('/generate-token')
   generateToken(@Query('uuid') uuid: string): { url: string } {
     const payload = { sub: uuid, iss: 'chainz' };
@@ -102,5 +77,29 @@ export class PlayerController {
     } catch (err) {
       return err;
     }
+  }
+
+  //TODO: Hacer que agrupe las stats en objects adentro del player xd
+  @Get('/:uuid')
+  async getPlayerStatsByUUID(@Param('uuid') uuid: string) {
+    const favorites = await PlayerProfile.getRepository()
+      .createQueryBuilder('player_profile')
+      .leftJoinAndMapOne(
+        'player_profile.skywars',
+        Skywars,
+        'skywars',
+        'player_profile.uuid = skywars.uuid',
+        { skywars: 'skywars' }
+      )
+      .leftJoinAndMapOne(
+        'player_profile.thebridge',
+        Thebridge,
+        'thebridge',
+        'player_profile.uuid = skywars.uuid',
+        { thebridge: 'thebridge' }
+      )
+      .where('player_profile.uuid = :uuid', { uuid });
+
+    return favorites.getOne();
   }
 }
