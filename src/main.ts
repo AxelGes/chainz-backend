@@ -7,8 +7,8 @@ import * as https from 'https';
 
 import { AppModule } from './app.module';
 
-const crPath = '/etc/letsencrypt/live/mechabrawlers.com/fullchain.pem';
-const pkPath = '/etc/letsencrypt/live/mechabrawlers.com/privkey.pem';
+const crPath = '/etc/letsencrypt/live/mechabrawlers.online/fullchain.pem';
+const pkPath = '/etc/letsencrypt/live/mechabrawlers.online/privkey.pem';
 
 const options: any = {};
 
