@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Thebridge } from 'src/entities/Thebridge';
 import { PlayerWallet } from '../entities/PlayerWallet';
-import { Skywars } from '../entities/Skywars';
 import { PlayerController } from './player.controller';
+import { PlayerProfile } from 'src/entities/PlayerProfile';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PlayerWallet, Skywars, Thebridge])],
+  imports: [TypeOrmModule.forFeature([PlayerProfile, PlayerWallet])],
   controllers: [PlayerController],
   providers: [],
   exports: [TypeOrmModule]

@@ -4,32 +4,33 @@ import * as Jwt from 'njwt';
 import { PlayerProfile } from 'src/entities/PlayerProfile';
 import { Skywars } from 'src/entities/Skywars';
 import { Thebridge } from 'src/entities/Thebridge';
-import { getManager } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { PlayerWallet } from '../entities/PlayerWallet';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Controller('player')
 export class PlayerController {
+  constructor(
+    @InjectRepository(PlayerWallet)
+    private playerWalletRepository: Repository<PlayerWallet>,
+    @InjectRepository(PlayerProfile)
+    private playerProfileRepository: Repository<PlayerProfile>
+  ) {}
+
   @Get()
   async getPlayerByWallet(@Query('wallet') wallet: string): Promise<PlayerWallet> {
-    wallet = "'" + wallet + "'";
+    const player = await this.playerWalletRepository
+      .createQueryBuilder('player_wallet')
+      .innerJoinAndSelect('player_profile', 'profile', 'player_wallet.uuid = profile.uuid')
+      .where('player_wallet.wallet = :wallet', { wallet })
+      .getOne();
 
-    const entityManager = getManager();
-
-    const player = await entityManager.query(`
-    SELECT * FROM  
-    player_wallet 
-    INNER JOIN 
-    player_profile ON player_wallet.uuid = player_profile.uuid
-    WHERE player_wallet.wallet = ${wallet} 
-    LIMIT 1;
-    `);
-
-    if (!player[0]) {
+    if (!player) {
       throw new NotFoundException();
     }
 
-    return player[0];
+    return player;
   }
 
   @Get('/generate-token')
@@ -62,7 +63,7 @@ export class PlayerController {
         { uuid: null }
       );
 
-      const player = await PlayerWallet.findOne({ wallet: signerAddr });
+      const player = await PlayerWallet.findOne({ where: { wallet: signerAddr } });
 
       if (player) {
         return PlayerWallet.update({ wallet: signerAddr }, {
@@ -79,27 +80,29 @@ export class PlayerController {
     }
   }
 
-  //TODO: Hacer que agrupe las stats en objects adentro del player xd
   @Get('/:uuid')
   async getPlayerStatsByUUID(@Param('uuid') uuid: string) {
-    const favorites = await PlayerProfile.getRepository()
+    const playerProfile = await this.playerProfileRepository
       .createQueryBuilder('player_profile')
       .leftJoinAndMapOne(
-        'player_profile.skywars',
+        'player_profile.skywarsData',
         Skywars,
         'skywars',
-        'player_profile.uuid = skywars.uuid',
-        { skywars: 'skywars' }
+        'player_profile.uuid = skywars.uuid'
       )
       .leftJoinAndMapOne(
-        'player_profile.thebridge',
+        'player_profile.thebridgeData',
         Thebridge,
         'thebridge',
-        'player_profile.uuid = skywars.uuid',
-        { thebridge: 'thebridge' }
+        'player_profile.uuid = thebridge.uuid'
       )
-      .where('player_profile.uuid = :uuid', { uuid });
+      .where('player_profile.uuid = :uuid', { uuid })
+      .getOne();
 
-    return favorites.getOne();
+    if (!playerProfile) {
+      throw new NotFoundException(`Player with UUID ${uuid} not found.`);
+    }
+
+    return playerProfile;
   }
 }

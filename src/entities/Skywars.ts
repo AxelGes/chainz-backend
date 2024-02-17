@@ -3,9 +3,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
+import { PlayerProfile } from './PlayerProfile';
 
 @Entity()
 export class Skywars extends BaseEntity {
@@ -56,6 +58,9 @@ export class Skywars extends BaseEntity {
 
   @Column({ default: 0, name: 'distance_walked' })
   distanceWalked: number;
+
+  @OneToOne(() => PlayerProfile, playerProfile => playerProfile.skywarsData)
+  playerProfile: PlayerProfile;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

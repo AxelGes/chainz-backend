@@ -1,6 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Skywars } from '../entities/Skywars';
-import { getManager } from 'typeorm';
+import { PlayerProfile } from '../entities/PlayerProfile';
 
 interface SkywarsRowsAndCountAll {
   rows: Skywars[];
@@ -9,6 +11,11 @@ interface SkywarsRowsAndCountAll {
 
 @Controller('skywars')
 export class SkywarsController {
+  constructor(
+    @InjectRepository(Skywars)
+    private skywarsRepository: Repository<Skywars>
+  ) {}
+
   @Get('/top')
   async getSkywarsTop(
     @Query('limit') limit: number = 10,
@@ -16,18 +23,17 @@ export class SkywarsController {
     @Query('col') col: string = 'games_won'
   ): Promise<SkywarsRowsAndCountAll> {
     const skip = (page - 1) * limit;
-    const count = await Skywars.count();
-    const pageCount: number = Math.ceil(count / limit);
 
-    const entityManager = getManager();
-    const rows = await entityManager.query(`
-    SELECT * FROM 
-    skywars 
-    INNER JOIN 
-    player_profile ON skywars.uuid = player_profile.uuid
-    ORDER BY ${col} DESC
-    LIMIT ${limit} OFFSET ${skip};
-    `);
+    // Using QueryBuilder to join Thebridge with PlayerProfile
+    const queryBuilder = this.skywarsRepository.createQueryBuilder('skywars')
+      .innerJoinAndSelect(PlayerProfile, 'playerProfile', 'skywars.uuid = playerProfile.uuid')
+      .orderBy(`skywars.${col}`, 'DESC')
+      .offset(skip)
+      .limit(limit);
+
+    const rows = await queryBuilder.getMany();
+    const count = await queryBuilder.getCount();
+    const pageCount = Math.ceil(count / limit);
 
     return { rows, pageCount };
   }

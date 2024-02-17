@@ -4,8 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  BaseEntity
+  BaseEntity,
+  OneToOne
 } from 'typeorm';
+import { PlayerProfile } from './PlayerProfile';
 
 @Entity()
 export class Thebridge extends BaseEntity {
@@ -36,6 +38,9 @@ export class Thebridge extends BaseEntity {
 
   @Column({ name: 'scored_points', default: 0 })
   scoredPoints: number;
+
+  @OneToOne(() => PlayerProfile, playerProfile => playerProfile.thebridgeData)
+  playerProfile: PlayerProfile;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -1,6 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { getManager } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Thebridge } from '../entities/Thebridge';
+import { InjectRepository } from '@nestjs/typeorm';
+import { PlayerProfile } from 'src/entities/PlayerProfile';
 
 interface ThebridgeRowsAndCountAll {
   rows: Thebridge[];
@@ -9,6 +11,11 @@ interface ThebridgeRowsAndCountAll {
 
 @Controller('thebridge')
 export class ThebridgeController {
+  constructor(
+    @InjectRepository(Thebridge)
+    private thebridgeRepository: Repository<Thebridge>
+  ) {}
+
   @Get('/top')
   async getThebridgeTop(
     @Query('limit') limit: number = 10,
@@ -16,18 +23,17 @@ export class ThebridgeController {
     @Query('col') col: string = 'games_won'
   ): Promise<ThebridgeRowsAndCountAll> {
     const skip = (page - 1) * limit;
-    const count = await Thebridge.count();
-    const pageCount: number = Math.ceil(count / limit);
 
-    const entityManager = getManager();
-    const rows = await entityManager.query(`
-    SELECT * FROM 
-    thebridge 
-    INNER JOIN 
-    player_profile ON thebridge.uuid = player_profile.uuid
-    ORDER BY ${col} DESC
-    LIMIT ${limit} OFFSET ${skip};
-    `);
+    // Using QueryBuilder to join Thebridge with PlayerProfile
+    const queryBuilder = this.thebridgeRepository.createQueryBuilder('thebridge')
+      .innerJoinAndSelect(PlayerProfile, 'playerProfile', 'thebridge.uuid = playerProfile.uuid')
+      .orderBy(`thebridge.${col}`, 'DESC')
+      .offset(skip)
+      .limit(limit);
+
+    const rows = await queryBuilder.getMany();
+    const count = await queryBuilder.getCount();
+    const pageCount = Math.ceil(count / limit);
 
     return { rows, pageCount };
   }

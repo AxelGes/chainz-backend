@@ -1,4 +1,6 @@
-import { Entity, Column, BaseEntity, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, BaseEntity, PrimaryGeneratedColumn, OneToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Thebridge } from './Thebridge';
+import { Skywars } from './Skywars';
 
 @Entity()
 export class PlayerProfile extends BaseEntity {
@@ -31,4 +33,16 @@ export class PlayerProfile extends BaseEntity {
 
   @Column({ default: 0 })
   level: number;
+
+  @OneToOne(() => Thebridge, thebridge => thebridge.playerProfile)
+  thebridgeData: Thebridge;
+
+  @OneToOne(() => Skywars, skywars => skywars.playerProfile)
+  skywarsData: Skywars;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 }
