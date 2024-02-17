@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
@@ -60,6 +61,7 @@ export class Skywars extends BaseEntity {
   distanceWalked: number;
 
   @OneToOne(() => PlayerProfile, playerProfile => playerProfile.skywarsData)
+  @JoinColumn({ name: 'uuid', referencedColumnName: 'uuid' })
   playerProfile: PlayerProfile;
 
   @CreateDateColumn({ name: 'created_at' })
